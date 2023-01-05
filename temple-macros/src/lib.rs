@@ -91,7 +91,6 @@ pub fn derive_template(input: TokenStream) -> TokenStream {
 
     TokenStream::from(quote::quote! {
         impl #i_generics ::temple::Template for #type_name #t_generics #where_clause {
-            const TEMPLATE_PATH: &'static str = #abs_template_path;
             const TEMPLATE_DATA: &'static str = include_str!(#abs_template_path);
         }
 

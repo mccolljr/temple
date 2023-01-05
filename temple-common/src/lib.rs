@@ -27,7 +27,6 @@ where
 }
 
 pub trait Template: Renderable {
-    const TEMPLATE_PATH: &'static str;
     const TEMPLATE_DATA: &'static str;
 }
 
