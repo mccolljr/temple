@@ -32,6 +32,24 @@ where
 
 pub struct DynDisplayImpl<'a>(Box<dyn Fn(&mut std::fmt::Formatter) -> std::fmt::Result + 'a>);
 
+impl<'a> DynDisplayImpl<'a> {
+    pub fn new<F>(f: F) -> Self
+    where
+        F: Fn(&mut std::fmt::Formatter) -> std::fmt::Result + 'a,
+    {
+        Self(Box::new(f))
+    }
+}
+
+impl<'a, F> From<F> for DynDisplayImpl<'a>
+where
+    F: Fn(&mut std::fmt::Formatter) -> std::fmt::Result + 'a,
+{
+    fn from(f: F) -> Self {
+        Self::new(f)
+    }
+}
+
 impl<'a> std::fmt::Display for DynDisplayImpl<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         self.0(f)
