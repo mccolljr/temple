@@ -31,13 +31,13 @@ impl syn::parse::Parse for TemplateArgs {
     }
 }
 
-fn parse_macro_file(path: &str) -> Result<Vec<temple_common::parse::Node>, TokenStream> {
+fn parse_macro_file(path: &str) -> Result<Vec<temple_common::syntax::parse::Node>, TokenStream> {
     let data = match std::fs::read_to_string(path) {
         Ok(data) => data,
         Err(e) => return Err(fail_compilation(e.to_string().as_str())),
     };
 
-    let mut parser = temple_common::parse::Parser::new(&data);
+    let mut parser = temple_common::syntax::parse::Parser::new(&data);
     parser
         .parse_nodes()
         .map_err(|e| fail_compilation(e.to_string().as_str()))
@@ -50,14 +50,14 @@ fn parse_template(
     let mut raw = String::new();
     for node in parse_macro_file(path)? {
         match node {
-            temple_common::parse::Node::Render(s) => {
-                raw.push_str(&format!("{}.render(&mut {})?; ", s, render_ident))
+            temple_common::syntax::parse::Node::Render(s) => {
+                raw.push_str(&format!("{{ {}.render(&mut {})?; }}", s, render_ident))
             }
-            temple_common::parse::Node::Content(s) => raw.push_str(&format!(
-                "if let Err(_) = {}.write_str({:?}) {{ return Err(()); }}",
+            temple_common::syntax::parse::Node::Content(s) => raw.push_str(&format!(
+                "{{ {}.write_str({:?}).map_err(|_| ())?; }}",
                 render_ident, s
             )),
-            temple_common::parse::Node::Control(s) => raw.push_str(&s),
+            temple_common::syntax::parse::Node::Control(s) => raw.push_str(&s),
         }
     }
 
@@ -96,7 +96,7 @@ pub fn derive_template(input: TokenStream) -> TokenStream {
 
         impl #i_generics ::temple::Renderable for #type_name #t_generics #where_clause {
             fn render<R: ::temple::Renderer>(&#self_ident, mut #renderer_ident: R) -> ::temple::Result {
-                use ::temple::{Renderable, Renderer};
+                use ::temple::{Renderable, Renderer, AsDynDisplay};
                 #template
                 Ok(())
             }

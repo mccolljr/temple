@@ -6,3 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+derive_more = "0.99.17"
+quote = { varsion = "1.0.23", default-features = false }
+syn = { version = "1.0.107", default-features = false, features = [
+    "full",
+    "quote",
+    "parsing",
+    "printing",
+    "clone-impls",
+] }
